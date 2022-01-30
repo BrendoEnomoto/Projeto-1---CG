@@ -1,7 +1,8 @@
 from tkinter import *
 from tkinter.ttk import *
-from turtle import left, right
+from turtle import distance, left, right
 from typing import final
+from Polilinha import plot
 import numpy as np
 import Polilinha_FINAL
 import Breserhan_V5
@@ -11,7 +12,9 @@ import Bezier_V4
 import Elipse_v1
 import Recorte_Polígono
 import Transformations_2d
-
+import Orto_Projections
+import Perspective
+import Transformations_3d
 ## parametros iniciais
 tamanhoTela = 600 
 tamanhoPixel = int(tamanhoTela / 50)
@@ -222,42 +225,572 @@ def funcao_selecionada():
     DesenharPixel(w,z, '#808080')  
   
 
-  if selecionado == "8 - Rotacionar Polígono":
+  if selecionado == "8 - Rotacionar Polígono 2d":
     stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
     
     stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
 
-    Angle = (float(g.get()))
-    Rotation_Point = (float(h.get()))
-
+    Angle = (int(g.get()))
+    Rotation_Point = (int(h.get()))
+    Rotation_Point = Rotation_Point - 1
+    
     X_Vet=stringX.split(',')
     Y_Vet=stringY.split(',')
-    n = len(X_Vet)
     
     X_Vet = list(map(float,X_Vet))
     Y_Vet = list(map(float,Y_Vet))
 
-    Polygon = np.array([[*X_Vet],
-                        [*Y_Vet]])
-
-    Scaling_Factors = [2,3]
-    Fixed_Point = 0
-
-    Translation_Coordinates = [-1,1]
+ 
+    Polygon = np.array([X_Vet,Y_Vet])
 
     Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
-    
+
+
     Final_Result = Transformations_2d.rotation(Polygon, Angle, Rotation_Point)
+    Final_Result = np.delete(Final_Result,(2), axis=0)
+    
+    print(Final_Result)
+    
 
-    x,y = zip(*Final_Result)
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
 
-    DesenharPixel(x,y, '#f00')
+    DesenharPixel(Final[0],Final[1], '#f00')
+    
+
+  if selecionado == "9 - Transladar Polígono 2d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringTranslationCoordinates=(g.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Translation_Coordinates = stringTranslationCoordinates.split(',')
+    
+      
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Translation_Coordinates = list(map(int,Translation_Coordinates))
+
+    Polygon = np.array([X_Vet,Y_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
 
 
+    Final_Result = Transformations_2d.translation(Polygon,Translation_Coordinates)
+    Final_Result = np.delete(Final_Result,(2), axis=0)
+    
+    print(Final_Result)
+    
 
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "10 - Escalar Polígono 2d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringScalingFactors=(g.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    Fixed_Point = (int(h.get()))
+    
+    Fixed_Point = Fixed_Point - 1
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Scaling_Factors = stringScalingFactors.split(',')
+    
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Scaling_Factors = list(map(int,Scaling_Factors))
+
+    Polygon = np.array([X_Vet,Y_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Transformations_2d.scaling(Polygon,Scaling_Factors,Fixed_Point)
+    Final_Result = np.delete(Final_Result,(2), axis=0)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "11 - Projeção Ortogonal - Frontal":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringZ=(g.get()) 
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringY.split(',')
+    
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Orto_Projections.orto_front(Polygon)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "12 - Projeção Ortogonal - Lateral":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringZ=(g.get()) 
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    n = len(X_Vet)
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+    
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Orto_Projections.orto_side(Polygon)
+    
+    print(Final_Result)
+    
+
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "13 - Projeção Ortogonal - Superior":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringZ=(g.get())
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Orto_Projections.orto_top(Polygon)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "14 - Perspectiva - 1 ponto":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringZ=(g.get())
+    
+    Distance = (int(h.get()))
+    
+    Focal_Point = (int(j.get()))
+    
+    Focal_Point = Focal_Point - 1
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Perspective.one_point_perspective(Polygon,Distance,Focal_Point)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "15 - Perspectiva - 2 pontos":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringZ=(g.get())
+    
+    Distance = (int(h.get()))
+    
+    Focal_Point = (int(j.get()))
+    
+    Focal_Point = Focal_Point - 1
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Perspective.two_point_perspective(Polygon,Distance,Focal_Point)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "16 - Perspectiva - 3 pontos":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringZ=(g.get())
+    
+    Distance = (int(h.get()))
+    
+    Focal_Point = (int(j.get()))
+    
+    Focal_Point = Focal_Point - 1
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Perspective.three_point_perspective(Polygon,Distance,Focal_Point)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "17 - Transladar Polígono 3d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    stringZ=(g.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    stringTranslationCoordinates=(h.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    Translation_Coordinates = stringTranslationCoordinates.split(',')
+    
+
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+    Translation_Coordinates = list(map(int,Translation_Coordinates))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Transformations_3d.translation(Polygon,Translation_Coordinates)
+    Final_Result = np.delete(Final_Result,(3), axis=0)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "18 - Escalar Polígono 3d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    stringZ=(f.get())
+
+    stringScalingFactors=(h.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    Fixed_Point = (int(j.get()))
+    
+    Fixed_Point = Fixed_Point - 1
+
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringY.split(',')
+    Scaling_Factors = stringScalingFactors.split(',')
+    
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+    Scaling_Factors = list(map(int,Scaling_Factors))
+
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Transformations_3d.scaling(Polygon,Scaling_Factors,Fixed_Point)
+    Final_Result = np.delete(Final_Result,(3), axis=0)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "19 - Rotacionar Polígono 3d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+
+    Angle = (int(g.get()))
+    Rotation_Point = (int(h.get()))
+    Rotation_Point = Rotation_Point - 1
+    
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+
+ 
+    Polygon = np.array([X_Vet,Y_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Transformations_2d.rotation(Polygon, Angle, Rotation_Point)
+    Final_Result = np.delete(Final_Result,(2), axis=0)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "19 - Rotacionar X Polígono 3d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    stringZ=(g.get())
+
+    Angle = (int(h.get()))
+    Rotation_Point = (int(j.get()))
+    Rotation_Point = Rotation_Point - 1
+    
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+ 
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Transformations_3d.rotation_x(Polygon, Angle, Rotation_Point)
+    Final_Result = np.delete(Final_Result,(3), axis=0)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "20 - Rotacionar Y Polígono 3d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    stringZ=(g.get())
+
+    Angle = (int(h.get()))
+    Rotation_Point = (int(j.get()))
+    Rotation_Point = Rotation_Point - 1
+    
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+ 
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Transformations_3d.rotation_y(Polygon, Angle, Rotation_Point)
+    Final_Result = np.delete(Final_Result,(3), axis=0)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+
+  if selecionado == "21 - Rotacionar Z Polígono 3d":
+    stringX=(e.get()) #[-3,-1,6,3,-4] #TESTE 1 # [-5,4,8,5,0,-6]
+    
+    stringY=(f.get()) #[-2,4,1,10,9] #TESTE 1 # [-7,-5,0,5,8,2]
+    
+    stringZ=(g.get())
+
+    Angle = (int(h.get()))
+    Rotation_Point = (int(j.get()))
+    Rotation_Point = Rotation_Point - 1
+    
+    X_Vet=stringX.split(',')
+    Y_Vet=stringY.split(',')
+    Z_Vet=stringZ.split(',')
+    
+    X_Vet = list(map(float,X_Vet))
+    Y_Vet = list(map(float,Y_Vet))
+    Z_Vet = list(map(float,Z_Vet))
+
+ 
+    Polygon = np.array([X_Vet,Y_Vet,Z_Vet])
+
+    Polygon = np.append(Polygon,[np.ones(len(Polygon[0]))],axis=0)
+
+
+    Final_Result = Transformations_3d.rotation_z(Polygon, Angle, Rotation_Point)
+    Final_Result = np.delete(Final_Result,(3), axis=0)
+    
+    print(Final_Result)
+    
+
+    
+    Final = plot(Final_Result)
+    print("FInal",Final)
+    
+    
+
+    DesenharPixel(Final[0],Final[1], '#f00')
+    
 def InsereValor(event):
  
-
   selecionado = combo.get()
 
   if selecionado == "1 - Linha":
@@ -374,7 +907,7 @@ def InsereValor(event):
     botao = Button(master,text="Recortar Polígono",command=funcao_selecionada)        
     botao.grid(column = 15, row = 7, pady= 10)
 
-  if selecionado == "8 - Rotacionar Polígono":
+  if selecionado == "8 - Rotacionar Polígono 2d":
     e.grid(column = 15, row = 1)  
     f.grid(column = 15, row = 2)
     g.grid(column = 15, row = 3)
@@ -388,12 +921,260 @@ def InsereValor(event):
     Mesagem_Inicial_PontoX.grid(column = 10, row= 3, pady= 10) 
     Mesagem_Inicial_PontoY= Label(master, text= "Informe o ponto de rotação do polígono: ")
     Mesagem_Inicial_PontoY.grid(column = 10, row= 4, pady= 10)   
-    botao = Button(master,text="Desenhar e Preencher Polígono",command=funcao_selecionada)        
+    botao = Button(master,text="Rotacionar Poligono",command=funcao_selecionada)        
     botao.grid(column = 15, row = 5, pady= 10)    
 
+  if selecionado == "9 - Transladar Polígono 2d":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)   
 
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe as coordenadas de translação: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 3, pady= 10)  
+    botao = Button(master,text="Transladar Polígono 2d",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 4, pady= 10)
+    
+  if selecionado == "10 - Escalar Polígono 2d":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)   
+    h.grid(column = 15, row = 4)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe os fatores de escalada: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 3, pady= 10) 
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe o ponto de fixação: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 4, pady= 10)  
+    botao = Button(master,text="Escalar Polígono 2d",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 5, pady= 10)
+    
+  if selecionado == "11 - Projeção Ortogonal - Frontal":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)   
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    botao = Button(master,text="Projeção Ortogonal - Frontal",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 4, pady= 10)
+
+  if selecionado == "11 - Projeção Ortogonal - Frontal":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    botao = Button(master,text="Projeção Ortogonal - Frontal",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 4, pady= 10)
+
+  if selecionado == "12 - Projeção Ortogonal - Lateral":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    botao = Button(master,text="Projeção Ortogonal - Lateral",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 4, pady= 10)
+
+  if selecionado == "13 - Projeção Ortogonal - Superior":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    botao = Button(master,text="Projeção Ortogonal - Superior",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 4, pady= 10)
+    
+  if selecionado == "14 - Perspectiva - 1 ponto":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+    h.grid(column = 15, row = 4)
+    j.grid(column = 15, row = 5)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira o ponto d: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 4, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira o ponto de foco: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 5, pady= 10)
+    botao = Button(master,text="Perspectiva - 1 ponto",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10)
+
+  if selecionado == "15 - Perspectiva - 2 pontos":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+    h.grid(column = 15, row = 4)
+    j.grid(column = 15, row = 5)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira o ponto d: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 4, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira o ponto de foco: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 5, pady= 10)
+    botao = Button(master,text="Perspectiva - 2 pontos",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10)
+
+  if selecionado == "16 - Perspectiva - 3 pontos":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+    h.grid(column = 15, row = 4)
+    j.grid(column = 15, row = 5)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira o ponto d: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 4, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira o ponto de foco: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 5, pady= 10)
+    botao = Button(master,text="Perspectiva - 3 pontos",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10)
+
+  if selecionado == "17 - Transladar Polígono 3d":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+    h.grid(column = 15, row = 4)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)  
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe as coordenadas de translação: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 4, pady= 10)  
+    botao = Button(master,text="Transladar Polígono 3d",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10)
+
+  if selecionado == "18 - Escalar Polígono 3d":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)   
+    h.grid(column = 15, row = 4)
+    j.grid(column = 15, row = 5)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe os fatores de escalada: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 4, pady= 10) 
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe o ponto de fixação: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 5, pady= 10)  
+    botao = Button(master,text="Escalar Polígono 3d",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10)
+    
+  if selecionado == "19 - Rotacionar X Polígono 3d":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+    h.grid(column = 15, row = 4)
+    j.grid(column = 15, row = 5)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe o ângulo de rotação do polígono: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 4, pady= 10) 
+    Mesagem_Inicial_PontoY= Label(master, text= "Informe o ponto de rotação do polígono: ")
+    Mesagem_Inicial_PontoY.grid(column = 10, row= 5, pady= 10)   
+    botao = Button(master,text="Rotacionar X Polígono 3d",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10) 
+  
+  if selecionado == "20 - Rotacionar Y Polígono 3d":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+    h.grid(column = 15, row = 4)
+    j.grid(column = 15, row = 5)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe o ângulo de rotação do polígono: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 4, pady= 10) 
+    Mesagem_Inicial_PontoY= Label(master, text= "Informe o ponto de rotação do polígono: ")
+    Mesagem_Inicial_PontoY.grid(column = 10, row= 5, pady= 10)   
+    botao = Button(master,text="Rotacionar Y Polígono 3d",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10)
+
+  if selecionado == "21 - Rotacionar Z Polígono 3d":
+    e.grid(column = 15, row = 1)  
+    f.grid(column = 15, row = 2)
+    g.grid(column = 15, row = 3)
+    h.grid(column = 15, row = 4)
+    j.grid(column = 15, row = 5)
+
+    Mesagem_Inicial_X= Label(master, text= "Insira os pontos do conjunto X que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_X.grid(column = 10, row= 1, pady= 10)  
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Y que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 2, pady= 10)
+    Mesagem_Inicial_Y= Label(master, text= "Insira os pontos do conjunto Z que formam o polígono separado-os com vírgula: ")
+    Mesagem_Inicial_Y.grid(column = 10, row= 3, pady= 10)
+    Mesagem_Inicial_PontoX= Label(master, text= "Informe o ângulo de rotação do polígono: ")
+    Mesagem_Inicial_PontoX.grid(column = 10, row= 4, pady= 10) 
+    Mesagem_Inicial_PontoY= Label(master, text= "Informe o ponto de rotação do polígono: ")
+    Mesagem_Inicial_PontoY.grid(column = 10, row= 5, pady= 10)   
+    botao = Button(master,text="Rotacionar Z Polígono 3d",command=funcao_selecionada)        
+    botao.grid(column = 15, row = 6, pady= 10)
+
+
+
+    
 combo = Combobox(master)
-combo ['values'] = ( "Selecionar" , "1 - Linha" , "2 - Círculo", "3 - Elipse","4 - Curva" , "5 - Polilinha" , "6 - Preenchimento Recursivo","7 - Recorte Polígono", "8 - Rotacionar Polígono")
+combo ['values'] = ("Selecionar" , "1 - Linha" , "2 - Círculo", "3 - Elipse","4 - Curva" , "5 - Polilinha" , "6 - Preenchimento Recursivo","7 - Recorte Polígono", "8 - Rotacionar Polígono 2d" , "9 - Transladar Polígono 2d", '10 - Escalar Polígono 2d',
+                    '11 - Projeção Ortogonal - Frontal', "12 - Projeção Ortogonal - Lateral", '13 - Projeção Ortogonal - Superior',"14 - Perspectiva - 1 ponto", '15 - Perspectiva - 2 pontos', '16 - Perspectiva - 3 pontos', '17 - Transladar Polígono 3d',
+                    '18 - Escalar Polígono 3d', '19 - Rotacionar X Polígono 3d', "20 - Rotacionar Y Polígono 3d", "21 - Rotacionar Z Polígono 3d")
 combo.current(0)
 combo.grid(column = 15, row = 0)
 combo.bind("<<ComboboxSelected>>", InsereValor)
@@ -407,7 +1188,7 @@ k = Entry(master)
 def main():
     
     Mesagem_Inicial= Label(master, text= "Qual algoritmo deseja executar?")
-    Mesagem_Inicial.grid(column = 10, row= 0)
+    Mesagem_Inicial.grid(column = 10, row= 0) 
 
       
 if __name__ == "__main__":
